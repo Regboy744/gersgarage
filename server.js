@@ -19,7 +19,7 @@ dotenv.config();
 const hostname = "0.0.0.0";
 const port = process.env.PORT || 3000;
 
-require("dotenv").config({ path: "MONGO_URI" });
+// require("dotenv").config({ path: "MONGO_URI" });
 
 //Connect to the data base using mogoose.
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
