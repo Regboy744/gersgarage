@@ -39,7 +39,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve our new ./public/index.html
-app.use("/", express.static("./frontend/public/"));
+app.use("/", express.static("./public/"));
 
 app.get("/", function (req, res) {
      res.setHeader("x-key-pey", "gzip");
