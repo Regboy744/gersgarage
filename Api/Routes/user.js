@@ -145,8 +145,7 @@ router.get("/roles", async (req, res) => {
 router.patch("/update/", async (req, res) => {
      // GET THE RIGTH USER BASED IN HIS EMAIL SENDED BY BODY
      const user = await Users.findById({ _id: req.body.id });
-     if (!user) return res.status(401).jason({ message: "User informed was not found" });
-     console.log(req.body.user_type);
+     if (!user) return res.status(401).json({ message: "User informed was not found" });
 
      // VALIDATE THE DATA BEFORE UPDATE
      const { error } = userUpdateValidation(req.body);
@@ -166,9 +165,9 @@ router.patch("/update/", async (req, res) => {
 
      try {
           const updateUser = await user.save();
-          res.send(updateUser);
+          res.status(200).json({ message: "User updated successfully" });
      } catch (error) {
-          Response.status(400);
+          res.status(400).json({ message: error.message });
      }
 });
 

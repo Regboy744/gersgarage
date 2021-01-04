@@ -11,11 +11,11 @@ const { stockPartsValidation } = require("../Validation/stockParts");
 router.post("/create", async (req, res) => {
      // VALIDATE THE DATA BEFORE CREATE A NEW USER
      const { error } = stockPartsValidation(req.body);
-     if (error) return res.status(400).send(console.log(error.details[0].message));
+     if (error) return res.status(400).json({ message: error.details[0].message });
 
      // CHECK IF A PART IF SAME FACTORY CODE EXISTS IN THE DB
      const parts = await Parts.findOne({ factory_ref: req.body.factory_ref });
-     if (parts) return res.status(400).send("This part already existe in the data base");
+     if (parts) return res.status(400).json({ message: "This part already existe in the data base" });
 
      const newPart = Parts({
           factory_ref: req.body.factory_ref,
@@ -31,7 +31,7 @@ router.post("/create", async (req, res) => {
      });
      try {
           const part = await newPart.save();
-          res.status(201).json(part);
+          res.status(200).json({ message: "New Part registered successfully" });
      } catch (error) {
           res.status(400).json({ message: error.message });
      }
@@ -66,11 +66,11 @@ router.get("/:id", async (req, res) => {
 router.patch("/update/:id", async (req, res) => {
      // VALIDATE THE DATA BEFORE UPDATE THE PART
      const { error } = stockPartsValidation(req.body);
-     if (error) return res.status(400).send(console.log(error.details[0].message));
+     if (error) return res.status(400).json({ message: error.details[0].message });
 
      //GET THE RIGHT PART BASE ON ITS ID
      const part = await Parts.findOne({ _id: req.params.id });
-     if (!part) return res.status(400).send("This part does not existe in the data base");
+     if (!part) return res.status(400).json({ message: "This part does not existe in the data base" });
 
      // UPDATE PART
 
@@ -87,7 +87,7 @@ router.patch("/update/:id", async (req, res) => {
 
      try {
           const updatePart = await part.save();
-          res.send(updatePart);
+          res.status(200).json({ message: "Part updated successfully" });
      } catch (error) {
           res.status(400).json({ message: error.message });
      }

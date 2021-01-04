@@ -17,8 +17,9 @@ module.exports = async function (req, res, next) {
      try {
           const verified = jwt.verify(localToken, process.env.ACCESS_TOKEN_SECRET);
           req.user = verified;
-          next();
      } catch (error) {
-          res.status(403).send("invalid token");
+          res.status(400).json({ message: error.message });
      }
+
+     next();
 };

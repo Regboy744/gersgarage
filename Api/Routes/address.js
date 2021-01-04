@@ -17,15 +17,15 @@ const { json } = require("express");
 
 // ADD NEW ADDRESS INDIVIDUALLY *************************************************************************************
 
-router.post("/register/:id/:token", verify, async (req, res) => {
+router.post("/register/:id/", async (req, res) => {
      console.log(req.params.id);
      // GET THE RIGTH USER BASED IN HIS EMAIL SENDED BY BODY
      const user = await User.findById({ _id: req.params.id });
-     if (!user) return res.status(400).send("We could not find the user informed");
+     if (!user) return res.status(400).json({ message: "We could not find the user informed" });
 
      // LETS VALIDATE THE DATA BEFORE CREATE A NEW USER ADDRESS INSTANCE
      const { error } = addressValidation(req.body);
-     if (error) return res.status(400).send(error.details[0].message);
+     if (error) return res.status(400).json({ message: error.details[0].message });
 
      try {
           if (user != null) {
@@ -39,12 +39,12 @@ router.post("/register/:id/:token", verify, async (req, res) => {
                     area: req.body.area,
                });
                const saveAddress = await newAddress.save();
-               res.status(201).json(saveAddress);
+               res.status(200).json({ message: "Address registered successfully" });
           } else {
                res.status(400).json({ message: "User does not exist" });
           }
      } catch (error) {
-          res.status(400).json({ message: error.message });
+          res.status(400).json({ message: "error.message" });
      }
 });
 
@@ -86,22 +86,21 @@ router.patch("/update/:id/:token", verify, async (req, res) => {
      const address = await Address.findOne({ user_id: req.params.id }).findOne({
           address_type: req.body.address_type,
      });
-     if (address == null)
-          return res.status(404).json({ message: "There is no address related to this userID" });
+     if (address == null) return res.status(404).json({ message: "There is no address related to this userID" });
 
      // VALIDATE THE DATA BEFORE CREATE A NEW USER ADDRESS INSTANCE
      const { error } = addressValidation(req.body);
      if (error) return res.status(400).json({ message: error.details[0].message });
 
-     // UPDATE ADDRESS
-     address.user_id = req.params.id;
-     address.address_type = req.body.address_type;
-     address.street = req.body.street;
-     address.city = req.body.city;
-     address.code = req.body.code;
-     address.area = req.body.area;
-
      try {
+          // UPDATE ADDRESS
+          address.user_id = req.params.id;
+          address.address_type = req.body.address_type;
+          address.street = req.body.street;
+          address.city = req.body.city;
+          address.code = req.body.code;
+          address.area = req.body.area;
+
           const saveAddress = await address.save();
           res.status(200).json({ message: "Address updated successfully" });
      } catch (error) {
@@ -114,7 +113,7 @@ router.patch("/update/:id/:token", verify, async (req, res) => {
 router.delete("/delete/:id", async (req, res) => {
      try {
           await Address.findByIdAndDelete({ _id: req.params.id });
-          return res.status(201).send("The part was deleted from the data base");
+          return res.status(201).json({ message: "The part was deleted from the data base" });
      } catch (error) {
           res.status(400).json({ message: error.message });
      }

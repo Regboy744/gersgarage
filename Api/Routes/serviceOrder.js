@@ -4,7 +4,6 @@ const Vehicle = require("../Models/Vehicles");
 const SO = require("../Models/ServiceOrders");
 const verify = require("../Middleware/verifyToken");
 const verifyAvaibility = require("../Middleware/verifyAvaibility");
-const dateFormat = require("dateformat");
 const { serviceOrderValidation } = require("../Validation/serviceOrder");
 
 // CREATE A NEW SERVICE ORDER BASED ON THE REGISTER NUMBER **********************************************************
@@ -79,7 +78,6 @@ router.get("/", verify, async (req, res) => {
 // GET ALL DATE TO SHOW AVAIBILITY ********************************************************************************
 
 router.get("/availability", async (req, res) => {
-     console.log("teste");
      try {
           const vehicle = await Vehicle.find();
           if (!vehicle) return res.status(400).send("There is now a car for this user");
@@ -124,6 +122,7 @@ router.patch("/update/:register", verify, async (req, res) => {
                     console.log(vehicle[i].service_orders[j]);
                }
           }
+          res.status(200).json({ message: "Vehicle registered successfully" });
      } catch (error) {
           res.status(500).json({ message: error.message });
      }
