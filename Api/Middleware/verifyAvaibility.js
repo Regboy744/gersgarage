@@ -21,7 +21,7 @@ module.exports = async function (req, res, next) {
 
      // GET ALL VEHICLES IN THE SYSTEM
      const vehicle = await Vehicle.find();
-     if (!vehicle) return res.status(401).json("Vehicle not Found");
+     if (!vehicle) return res.status(401).json({ messamajorRepairmajorRepair });
 
      // COUNT THE SERVICES IN THE REQUESTED DAY
      // MAJOR SERVICE HAS 2 AS A VALUE THE OTHER HAVE 1

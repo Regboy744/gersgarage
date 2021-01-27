@@ -3,7 +3,7 @@ const Joi = require("@hapi/joi");
 //   VALIDATION
 const serviceOrderValidation = (data) => {
      const schema = {
-          v_id: Joi.string().min(2).required(),
+          // v_id: Joi.string().min(2).required(),
           status: Joi.string().min(2).required(),
           service_type: Joi.string().min(2).required(),
           mechanic_name: Joi.string().min(2).required(),

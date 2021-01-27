@@ -4,15 +4,13 @@ const Vehicle = require("../Models/Vehicles");
 const SO = require("../Models/ServiceOrders");
 const verify = require("../Middleware/verifyToken");
 const verifyAvaibility = require("../Middleware/verifyAvaibility");
+const dateFormat = require("dateformat");
+
 const { serviceOrderValidation } = require("../Validation/serviceOrder");
 
 // CREATE A NEW SERVICE ORDER BASED ON THE REGISTER NUMBER **********************************************************
 
 router.post("/register", verifyAvaibility, async (req, res) => {
-     // // VALIDATE THE DATA BEFORE CREATE A NEW SERVICE ORDER
-     // const { error } = serviceOrderValidation(req.body);
-     // if (error) return res.status(400).json({ message: error.details[0].message });
-
      // VALIDATE IF THERE IS A VEHICLE WITH THE SAME REGISTER ON THE DATA BASE
      const vehicle = await Vehicle.findById({ _id: req.body.v_id });
      if (!vehicle) return res.status(400).json({ message: "This vehicle does not existe in the data base" });
@@ -56,11 +54,11 @@ router.post("/register", verifyAvaibility, async (req, res) => {
      }
 });
 
-// GET ALL SERVICE ORDERS BY ITS USER ********************************************************************************
+// GET ALL SERVICE ORDERS (MECANICH VIEW)********************************************************************************
 
-router.get("/", verify, async (req, res) => {
+router.get("/:id/:token", verify, async (req, res) => {
      try {
-          const vehicle = await Vehicle.findOne({ user_id: req.user._id }).find();
+          const vehicle = await Vehicle.find();
 
           let serviceOrdersArray = [];
 
@@ -69,6 +67,7 @@ router.get("/", verify, async (req, res) => {
                     serviceOrdersArray.push(vehicle[i].service_orders[j]);
                }
           }
+
           res.json(serviceOrdersArray);
      } catch (error) {
           res.status(500).json({ message: error.message });
@@ -80,7 +79,7 @@ router.get("/", verify, async (req, res) => {
 router.get("/availability", async (req, res) => {
      try {
           const vehicle = await Vehicle.find();
-          if (!vehicle) return res.status(400).send("There is now a car for this user");
+          if (!vehicle) return res.status(400).send({ message: "There is now a car for this user" });
 
           let bookingDates = [];
 
@@ -96,30 +95,47 @@ router.get("/availability", async (req, res) => {
      }
 });
 
-// UPDATE SERVICE ORDER BY VEHICLE REGISTER NUMBER *******************************************************************
-
-router.patch("/update/:register", verify, async (req, res) => {
+// GET A SIGLE SERVICE ORDER BY ITS ID (MECHANIC VIEW) ************************************************************************************************
+router.get("/:s_id/:token/:id", async (req, res) => {
      try {
-          // VALIDATE THE DATA BEFORE CREATE A NEW SERVICE ORDER
-          const { error } = serviceOrderValidation(req.body);
-          if (error) return res.status(400).send(error.details[0].message);
+          const vehicle = await Vehicle.find();
 
-          const vehicle = await Vehicle.findOne({ register: req.params.register }).find();
+          let serviceOrdersArray = [];
 
           for (let i = 0; i < vehicle.length; i++) {
                for (let j = 0; j < vehicle[i].service_orders.length; j++) {
-                    // UPDATE THE SERVICE ORDER BASED ON THE CAR REGISTER NUMBER
-                    vehicle[i].service_orders[j].status = req.body.status;
-                    vehicle[i].service_orders[j].mechanic_name = req.body.mechanic_name;
-                    vehicle[i].service_orders[j].issue_description = req.body.issue_description;
-                    vehicle[i].service_orders[j].start_date = req.body.start_date;
-                    vehicle[i].service_orders[j].end_date = req.body.end_date;
-                    vehicle[i].service_orders[j].service_cost = req.body.service_cost;
+                    if (vehicle[i].service_orders[j]._id == req.params.s_id) {
+                         serviceOrdersArray.push(vehicle[i].service_orders[j]);
+                    }
+               }
+          }
 
-                    const updateSo = await vehicle[i].save();
+          console.log(serviceOrdersArray);
+          res.status(201).json(serviceOrdersArray[0]);
+     } catch (error) {
+          res.status(500).json({ message: error.message });
+     }
+});
 
-                    res.send(updateSo);
-                    console.log(vehicle[i].service_orders[j]);
+// UPDATE SERVICE ORDER BY VEHICLE REGISTER NUMBER *******************************************************************
+
+router.patch("/update/:userid/:token", async (req, res) => {
+     try {
+          const vehicle = await Vehicle.find({});
+
+          for (let i = 0; i < vehicle.length; i++) {
+               for (let j = 0; j < vehicle[i].service_orders.length; j++) {
+                    if (req.body.serviceOrderId == vehicle[i].service_orders[j]._id) {
+                         console.log(vehicle[i].service_orders[j]._id);
+                         vehicle[i].service_orders[j].status = req.body.status;
+                         vehicle[i].service_orders[j].service_type = req.body.service_type;
+                         vehicle[i].service_orders[j].mechanic_name = req.body.mechanic_name;
+                         vehicle[i].service_orders[j].start_date = req.body.start_date;
+                         vehicle[i].service_orders[j].end_date = req.body.end_date;
+                         vehicle[i].service_orders[j].service_cost = req.body.service_cost;
+
+                         const updateSo = await vehicle[i].save();
+                    }
                }
           }
           res.status(200).json({ message: "Vehicle registered successfully" });

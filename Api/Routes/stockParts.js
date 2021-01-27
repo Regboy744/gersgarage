@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const verify = require("../Middleware/verifyToken");
 const { stockPartsValidation } = require("../Validation/stockParts");
+const { param } = require("./serviceOrder");
 
 // ADD NEW PART  *************************************************************************************
 
@@ -55,6 +56,7 @@ router.get("/:id", async (req, res) => {
      try {
           const part = await Parts.findOne({ _id: req.params.id });
           if (!part) return res.status(400).send("This part doe not existe in the data base");
+          console.log(part);
           res.status(201).json(part);
      } catch (error) {
           res.status(400).json({ message: error.message });

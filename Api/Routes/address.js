@@ -13,12 +13,10 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const verify = require("../Middleware/verifyToken");
 const { addressValidation } = require("../Validation/address");
-const { json } = require("express");
 
 // ADD NEW ADDRESS INDIVIDUALLY *************************************************************************************
 
-router.post("/register/:id/", async (req, res) => {
-     console.log(req.params.id);
+router.post("/register/:id/:token", verify, async (req, res) => {
      // GET THE RIGTH USER BASED IN HIS EMAIL SENDED BY BODY
      const user = await User.findById({ _id: req.params.id });
      if (!user) return res.status(400).json({ message: "We could not find the user informed" });
@@ -44,7 +42,7 @@ router.post("/register/:id/", async (req, res) => {
                res.status(400).json({ message: "User does not exist" });
           }
      } catch (error) {
-          res.status(400).json({ message: "error.message" });
+          res.status(400).json({ message: error.message });
      }
 });
 
@@ -92,15 +90,15 @@ router.patch("/update/:id/:token", verify, async (req, res) => {
      const { error } = addressValidation(req.body);
      if (error) return res.status(400).json({ message: error.details[0].message });
 
-     try {
-          // UPDATE ADDRESS
-          address.user_id = req.params.id;
-          address.address_type = req.body.address_type;
-          address.street = req.body.street;
-          address.city = req.body.city;
-          address.code = req.body.code;
-          address.area = req.body.area;
+     // UPDATE ADDRESS
+     address.user_id = req.params.id;
+     address.address_type = req.body.address_type;
+     address.street = req.body.street;
+     address.city = req.body.city;
+     address.code = req.body.code;
+     address.area = req.body.area;
 
+     try {
           const saveAddress = await address.save();
           res.status(200).json({ message: "Address updated successfully" });
      } catch (error) {
@@ -113,7 +111,7 @@ router.patch("/update/:id/:token", verify, async (req, res) => {
 router.delete("/delete/:id", async (req, res) => {
      try {
           await Address.findByIdAndDelete({ _id: req.params.id });
-          return res.status(201).json({ message: "The part was deleted from the data base" });
+          return res.status(201).send("The part was deleted from the data base");
      } catch (error) {
           res.status(400).json({ message: error.message });
      }
