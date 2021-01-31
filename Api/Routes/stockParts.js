@@ -31,7 +31,7 @@ router.post("/create", async (req, res) => {
           quantity: req.body.quantity,
      });
      try {
-          const part = await newPart.save();
+          await newPart.save();
           res.status(200).json({ message: "New Part registered successfully" });
      } catch (error) {
           res.status(400).json({ message: error.message });
